@@ -30,6 +30,26 @@ impl Graph for UndirectedGraph {
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
+        // 确保两个节点都存在于图中
+        self.add_node(edge.0);
+        self.add_node(edge.1);
+        
+        let u = edge.0.to_string();
+        let v = edge.1.to_string();
+        let weight = edge.2;
+        
+        // 为无向图添加双向边
+        // 从u到v的边
+        self.adjacency_table_mutable()
+            .entry(u.clone())
+            .or_insert_with(Vec::new)
+            .push((v.clone(), weight));
+        
+        // 从v到u的边
+        self.adjacency_table_mutable()
+            .entry(v)
+            .or_insert_with(Vec::new)
+            .push((u, weight));
     }
 }
 pub trait Graph {
@@ -38,11 +58,12 @@ pub trait Graph {
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
     fn add_node(&mut self, node: &str) -> bool {
         //TODO
-		true
+		// 如果节点不存在则添加，返回true；如果已存在则返回false
+        self.adjacency_table_mutable()
+            .insert(node.to_string(), Vec::new())
+            .is_none()
     }
-    fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
-    }
+    fn add_edge(&mut self, edge: (&str, &str, i32));
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
     }
